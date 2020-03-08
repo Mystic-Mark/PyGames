@@ -1,11 +1,12 @@
 import os
 import random
+import textwrap
 from datetime import datetime
 
 def randomize():
     random.seed(datetime.now())
 
-def cls():
+def clrSc():
     os.system('clear')
 
 def center(text):
@@ -13,5 +14,9 @@ def center(text):
     print(text.center(width))
 
 def waitToContinue():
-    center("Press enter to continue.")
+    center("Press enter to continue")
     input()
+
+def wrapText(value):
+    wrapper = textwrap.TextWrapper(width=70,break_long_words=False,replace_whitespace=False)
+    return wrapper.fill(text=value)
