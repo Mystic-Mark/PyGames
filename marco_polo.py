@@ -1,4 +1,5 @@
 from common import (randomize, clrSc, center, waitToContinue, wrapText)
+
 class varStore:
     EP = list()
     EPT = [6, 4, 4, 6, 6, 6, 6, 4, 4, 1, 6, 8, 18, 10]
@@ -29,14 +30,22 @@ def scenario(varStore):
     print(wrapText("\n * Oil for lamps and cooking (Over much of the trip, you will be "
         "able to use wood to build fires. However, in the Persian, Lop, and Gobi deserts "
         "you will need oil."))
-    print("\n"); waitToContinue(); clrSc()
+    print("\n"); waitToContinue()
     print(wrapText(" From Venice you have also packed clothing, weapons (crossbows), and "
         "medicines (balms and unguents); however, your provisions will be depleted as you "
         "go along and you must replenish them. The selection and price of supplies is quite "
         "different in various regions, so you must barter wisely. As a merchant, you are "
         "not skilled in fishing or hunting, although occasionally you might be able to try "
         "to get some food in this way."))
-    print("\n"); waitToContinue(); clrSc
+    print("\n"); waitToContinue()
+
+def getInitSupplies(varStore):
+    varStore.A1 = 17; varStore.A2 = 24
+    print("\n"); print(wrapText(" After three months at sea, you have arrived at the seaport "
+        "of Laiassus, Armenia. There are many merchants in the port city and you can easily "
+        "get the supplies you need. Several traders offer you: "))
+    print("\n camels at prices between " + str(varStore.A1) + " and " + str(varStore.A2) + " jewels each.")
+
 
 # Start Program
 randomize()
@@ -48,3 +57,4 @@ print('\n' * 2); waitToContinue()
 clrSc()
 varStore = varStore()
 scenario(varStore)
+getInitSupplies(varStore)
