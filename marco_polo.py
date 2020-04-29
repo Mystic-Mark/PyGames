@@ -1,4 +1,5 @@
-from common import (randomize, clrSc, center, waitToContinue, wrapText)
+#from common import (randomize, clrSc, center, waitToContinue, wrapText)
+from common import *
 
 class varStore:
     EP = list()
@@ -12,8 +13,13 @@ class varStore:
     JL, C, W, M, FP, BSK = 300, 2, 30, 5, 5, 99 #Inital quantities of stuff
 
 
-def initialize():
-    pass
+def title():
+    clrSc()
+    center("The Journey of Marco Polo, 1271\n")
+    center("(c) David H. Ahl, 1986\n")
+    center("Ported to Python by Mark Rapp, 2020")
+    print('\n' * 2); waitToContinue()
+    clrSc()
 
 def scenario(varStore):
     center("The Journey of Marco Polo - 1271\n\n")
@@ -46,15 +52,19 @@ def getInitSupplies(varStore):
         "get the supplies you need. Several traders offer you: "))
     print("\n camels at prices between " + str(varStore.A1) + " and " + str(varStore.A2) + " jewels each.")
 
+def get1stLtrAns(answer):
+    if answer == "":
+       return "Y"
+    answer = answer[0]
+    if answer >= "A" and answer <= "Z":
+       return answer
+    else:
+       return chr(ord(answer) - 32)
 
 # Start Program
 randomize()
-clrSc()
-center("The Journey of Marco Polo, 1271\n")
-center("(c) David H. Ahl, 1986\n")
-center("Ported to Python by Mark Rapp, 2020")
-print('\n' * 2); waitToContinue()
-clrSc()
 varStore = varStore()
-scenario(varStore)
-getInitSupplies(varStore)
+#title()
+#scenario(varStore)
+#getInitSupplies(varStore)
+print(get1stLtrAns("Mark"))
