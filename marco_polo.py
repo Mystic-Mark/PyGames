@@ -1,4 +1,3 @@
-#from common import (randomize, clrSc, center, waitToContinue, wrapText)
 from common import *
 
 class varStore:
@@ -11,6 +10,8 @@ class varStore:
             EP.insert(i, EPT[i] + EP[i-1])
     MO = ["March", "May", "July", "September", "November", "January"]
     JL, C, W, M, FP, BSK = 300, 2, 30, 5, 5, 99 #Inital quantities of stuff
+    SW = ["SPLAT","SPRONG","TWACK","ZUNK"] #Shooting words
+    FA = ["wild boar","big stag","black bear"] #Hunting animals
 
 
 def title():
@@ -52,14 +53,27 @@ def getInitSupplies(varStore):
         "get the supplies you need. Several traders offer you: "))
     print("\n camels at prices between " + str(varStore.A1) + " and " + str(varStore.A2) + " jewels each.")
 
-def get1stLtrAns(answer):
-    if answer == "":
-       return "Y"
-    answer = answer[0]
-    if answer >= "A" and answer <= "Z":
-       return answer
-    else:
-       return chr(ord(answer) - 32)
+def shootCrossbow(varStore):
+    RN = random.randint(1, 4)
+    print(varStore.SW[RN-1])
+    
+def checkAnswerRange(A, A1, A2):
+    while True:
+        if A >= A1 and A <= A2:
+            return A
+        elif A < A1:
+            X = "few"
+        else:
+            X = "many"
+        
+        print("That is too " + X + ". ", end="")    
+        while True:
+            getAns = input("Your answer please? ")
+            try:
+                A = int(getAns)
+                break
+            except:
+                print("Incorrect input, try again.")
 
 # Start Program
 randomize()
@@ -67,4 +81,7 @@ varStore = varStore()
 #title()
 #scenario(varStore)
 #getInitSupplies(varStore)
-print(get1stLtrAns("Mark"))
+
+# Note for tomorrow
+# print(float(datetime.now().time().strftime("%H%M%S.%f")))
+shootCrossbow(varStore)
