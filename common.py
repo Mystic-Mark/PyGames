@@ -1,7 +1,7 @@
 import os
 import random
 import textwrap
-from datetime import datetime
+from datetime import datetime, timedelta
 
 def randomize():
     random.seed(datetime.now())
@@ -42,3 +42,6 @@ def get1stLtrAns(answer):
        return answer.upper()
     else:
        return "0"
+       
+def end():
+    exit()
