@@ -10,11 +10,15 @@ def clrSc():
     os.system('clear')
 
 def center(text):
-    width = os.get_terminal_size().columns
+    #width = os.get_terminal_size().columns
+    width = 70
     print(text.center(width))
 
-def waitToContinue():
-    center("Press enter to continue")
+def waitToContinue(text):
+    if text == "continue":
+        center("Press enter to continue")
+    else:
+        center(text)
     input()
 
 def wrapText(value):
@@ -42,6 +46,16 @@ def get1stLtrAns(answer):
        return answer.upper()
     else:
        return "0"
+
+def getIntAns(question):
+    while True:
+        getAns = input(question)
+        try:
+            return int(getAns)
+            break
+        except:
+            print("Incorrect input, try again.")
+
        
 def end():
     exit()
