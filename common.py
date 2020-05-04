@@ -2,6 +2,7 @@ import os
 import random
 import textwrap
 from datetime import datetime, timedelta
+import time
 
 def randomize():
     random.seed(datetime.now())

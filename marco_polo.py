@@ -9,7 +9,7 @@ class varStore:
             300, 2, 30, 5, 5, 99 #Inital quantities of stuff
         self.SW_s = ["SPLAT","SPRONG","TWACK","ZUNK"] #Shooting words
         self.FA_s = ["wild boar","big stag","black bear"] #Hunting animals
-        self.J = 0
+        self.J = 0; self.DT = 0; self.D = 0; self.F = 0; self.L = 0; self.B = 0
         
         # Future Variables for Store
         #self.HX = 1 # VARIABLE STUB
@@ -113,8 +113,66 @@ def initHuntSkill():
            break
        else:
            print("Please enter 1, 2, 3 or 4")
-    print("\n"); waitToContinue("Press any key to begin your trek!")
+    print("\n"); waitToContinue("Press enter to begin your trek!")
     clrSc()
+    
+def chkForZero(varStore):
+    #Can't have negative jewels
+    if varStore.JL < 0:
+        varStore.JL = 0
+    #No negative food
+    if varStore.F < 0:
+        varStore.F = 0
+    #No negative oil
+    if varStore.L < 0:
+        varStore.L = 0
+    #No negative clothing
+    if varStore.C < 0:
+        varStore.C = 0
+    #No negative medicine
+    if varStore.M < 0:
+        varStore.M = 0
+    #No negative arrows
+    if varStore.W < 0:
+        varStore.W = 0
+        
+def printInv(varStore):
+    print()
+    line1 = {'leadin': '                ', 'colspc': '  ', 'col3': 'SACKS OF', 'col4':
+        'SKINS OF', 'col5': 'ROBES AND', 'col6': 'BALMS AND', 'col7': 'CROSSBOW'}
+    line1Txt = "{l1[leadin]}{l1[col3]}{l1[colspc]}{l1[col4]}{l1[colspc]}{l1[col5]}"\
+        "{l1[colspc]}{l1[col6]}{l1[colspc]}{l1[col7]}"
+    print(line1Txt.format(l1=line1))
+    
+    line2 = {'colspc': '  ', 'col1': 'JEWELS', 'col2': 'CAMELS', 'col3': 'FOOD', 'col4':
+        'OIL', 'col5': 'SANDALS', 'col6': 'UNGUENTS', 'col7': 'ARROWS'}
+    line2Txt = "{l2[col1]}{l2[colspc]}{l2[col2]}{l2[colspc]}{l2[col3]:^8}{l2[colspc]}"\
+        "{l2[col4]:^8}{l2[colspc]}{l2[col5]:^9}{l2[colspc]}{l2[col6]:^9}{l2[colspc]}"\
+        "{l2[col7]:^8}"
+    print(line2Txt.format(l2=line2))
+    
+    line3 = {'colspc': '  ', 'col1': varStore.JL, 'col2': varStore.B, 'col3': varStore.F, 'col4': varStore.L, 'col5': varStore.C, 'col6': varStore.M, 'col7': varStore.W}
+    line3Txt ="{l3[col1]:^6d}{l3[colspc]}{l3[col2]:^6d}{l3[colspc]}{l3[col3]:^8.1f}"\
+        "{l3[colspc]}{l3[col4]:^8.1f}{l3[colspc]}{l3[col5]:^9d}{l3[colspc]}{l3[col6]:^9d}"\
+        "{l3[colspc]}{l3[col7]:^8d}"
+    print(line3Txt.format(l3=line3))
+
+def endTrip(varStore):
+    chkForZero(varStore)
+    time.sleep(1); clrSc()
+    for i in range(5):
+        print("\n\n\n\n\n"); center("CONGRATULATIONS !")
+        time.sleep(0.5); clrSc()
+        time.sleep(0.5)
+    print(wrapText("You have been traveling for " + str(varStore.J * 2) + " months! "
+        "You are ushered into the court of the Great Kublai Khan. He surveys your meager "
+        "remaining supplies: "))
+    printInv(varStore)
+    print(wrapText("\n...and marvels that you got here at all. He is disappointed that the "
+        "Pope did not see fit to send the 100 men of learning that he requested and, as a "
+        "result, keeps the three of you as his personal envoys for the next 21 years. Well "
+        "done!"))
+    print()
 
 def tryAgain():
     A = getYorN(input("\nWould you like to try again? "))
@@ -182,6 +240,8 @@ def main():
     
     while True:
         varStore.J+=1; printDate()
+        varStore.DT+=varStore.D
+        endTrip(varStore)
         tryAgain()
 
 if __name__ == '__main__':
