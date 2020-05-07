@@ -10,6 +10,8 @@ class varStore:
         self.SW_s = ["SPLAT","SPRONG","TWACK","ZUNK"] #Shooting words
         self.FA_s = ["wild boar","big stag","black bear"] #Hunting animals
         self.J = 0; self.DT = 0; self.D = 0; self.F = 0; self.L = 0; self.B = 0
+        self.PSK = 0; self.PSKT = 0; self.PWD = 0; self.PWDT = 0; self.FE = 0
+        self.PFD = 0; self.BA = 0
         
         # Future Variables for Store
         #self.HX = 1 # VARIABLE STUB
@@ -96,6 +98,82 @@ def getInitSupplies():
     varStore.L = varStore.A
     varStore.JL = varStore.JL - 2 * varStore.L
     
+def chkStock(varStore):
+    """
+    Variables In: JL, C, B, BL
+    Variables Out: JL, B, BL
+    """
+    def pushOn(number):
+        print("You push on with your " + str(number) + " camels.")
+    
+    if varStore.JL < 16:
+        print(wrapText("You have only " + str(varStore.JL) + " jewels with which to "
+            "barter."))
+        if varStore.B > 2:
+            A = getYorN(input("\nWould you like to sell a camel? "))
+            if A == "Y":
+                RN = random.randint(8, 16)
+                print(wrapText("You get " + str(RN) + " jewels for your best camel."))
+                varStore.JL+=RN; varStore.B-=1; varStore.BL-=1
+            else:
+                pushOn(varStore.B)
+                return
+        else:
+            pushOn(varStore.B)
+            return
+    if varStore.C < 1:
+        print(wrapText("You should try to replace that tent you have been wearing as "
+            "a robe. It is badly torn and the Tartars find it insulting."))
+    return
+    
+def sickness(varStore):
+    """
+    Variables In: PSK, PSKT, PWD, PWDT, FE, PFD, J, JL, M, F
+    Variables Out: PSK, PSKT, PWD, PWDT, PFD, J, M, F
+    """
+    #sickness total
+    if varStore.PSK > 0:
+        varStore.PSKT += varStore.PSK
+        varStore.PSK = 0
+
+    #injuries total
+    if varStore.PWD > 0:
+        varStore.PWDT += varStore.PWD
+        varStore.PWD = 0
+        
+    if varStore.FE == 3:
+        varStore.PFD += 0.4
+    
+    if varStore.PSKT + varStore.PWDT + varStore.PFD < 3:
+        return
+         
+    #70% chance of delay due to recurring illness    
+    if random.random() > 0.7:
+        return
+        
+    print(wrapText("As a result of sickness, injuries, and poor eating, you must stop and regain your health. You trade a few jewels to stay in a hut."))
+    RN = int(1+3.2*(random.random()))
+
+    if RN > 3:
+        #6% chance of dying
+        time.sleep(2)
+        print(wrapText("\nYou stay for " + str(RN) + " months but grow steadily weaker and finally pass away."))
+        varStore.J += RN
+        endGamePt2(varStore)
+    else:
+        print(wrapText("\nYou grow steadily stronger, but it is " + str(RN*2) + " months until you are again fit to travel."))
+        varStore.PSKT = 0; varStore.PWDT = 0; varStore.PFD = 0
+        varStore.J += RN; varStore.M = int(varStore.M/2); varStore.F = varStore.F / 2
+        if varStore.F < 3:
+            varStore.F = 3
+        #costs money for lodging
+        if varStore.JL > 20:
+            varStore.JL -= 10
+        else:
+            varStore.JL = int(varStore.JL/2)
+        printDate(varStore)
+        return
+    
 def initHuntSkill():
     """
     Variables In: None
@@ -137,7 +215,6 @@ def chkForZero(varStore):
         varStore.W = 0
         
 def printInv(varStore):
-    print()
     line1 = {'leadin': '                ', 'colspc': '  ', 'col3': 'SACKS OF', 'col4':
         'SKINS OF', 'col5': 'ROBES AND', 'col6': 'BALMS AND', 'col7': 'CROSSBOW'}
     line1Txt = "{l1[leadin]}{l1[col3]}{l1[colspc]}{l1[col4]}{l1[colspc]}{l1[col5]}"\
@@ -156,6 +233,31 @@ def printInv(varStore):
         "{l3[colspc]}{l3[col4]:^8.1f}{l3[colspc]}{l3[col5]:^9d}{l3[colspc]}{l3[col6]:^9d}"\
         "{l3[colspc]}{l3[col7]:^8d}"
     print(line3Txt.format(l3=line3))
+    print()
+    
+def endGamePt1(varStore):
+    """
+    Variables In: J
+    Variables Out: None
+    """
+    print(wrapText("You keep going as long as you can, trying to find berries and edible "
+        "plants. But this is barren country and you fall ill and, after weeks of suffering, "
+        "you collapse into eternal sleep."))
+    endGamePt2(varStore)
+    
+def endGamePt2(varStore):
+    """
+    Variables In: J
+    Variables Out: None
+    """
+    print()
+    varStore.J+=1
+    printDate(varStore)
+    print("You had the following left at the end :\n")
+    printInv(varStore)
+    print("You traveled for " + str(varStore.J * 2) + " months!")
+    print("\nSorry, you didn't make it to Shang-tu.")
+    tryAgain()
 
 def endTrip(varStore):
     chkForZero(varStore)
@@ -166,7 +268,7 @@ def endTrip(varStore):
         time.sleep(0.5)
     print(wrapText("You have been traveling for " + str(varStore.J * 2) + " months! "
         "You are ushered into the court of the Great Kublai Khan. He surveys your meager "
-        "remaining supplies: "))
+        "remaining supplies: ")); print()
     printInv(varStore)
     print(wrapText("\n...and marvels that you got here at all. He is disappointed that the "
         "Pope did not see fit to send the 100 men of learning that he requested and, as a "
@@ -183,7 +285,7 @@ def tryAgain():
         print("\nBye for now.")
         end()
 
-def printDate():
+def printDate(varStore):
     """
     Variables In: J, MO_s
     Variables Out: None
@@ -239,8 +341,24 @@ def main():
     initHuntSkill()
     
     while True:
-        varStore.J+=1; printDate()
+        varStore.J+=1; printDate(varStore)
         varStore.DT+=varStore.D
+        
+        #Reached end of trip
+        if varStore.DT > 6000:
+            endTrip(varStore)
+        
+        varStore.D = 40 + varStore.BA * 20 + int(random.randrange(99))
+        print("You have traveled " + str(varStore.DT) + " miles.")
+        print("Here is what you now have: "); printInv(varStore)
+        
+        #Debug
+        #What about negative jewels????
+        print("\n"); waitToContinue("continue")
+        
+        chkStock(varStore)
+        sickness(varStore)
+        
         endTrip(varStore)
         tryAgain()
 
