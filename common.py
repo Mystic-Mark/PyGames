@@ -57,6 +57,9 @@ def getIntAns(question):
         except:
             print("Incorrect input, try again.")
 
+def dictToObjectStore(object, dictList):
+    for key, value in dictList.items():
+        setattr(object, key, value)
        
 def end():
     exit()

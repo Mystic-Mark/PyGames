@@ -11,7 +11,7 @@ class varStore:
         self.FA_s = ["wild boar","big stag","black bear"] #Hunting animals
         self.J = 0; self.DT = 0; self.D = 0; self.F = 0; self.L = 0; self.B = 0
         self.PSK = 0; self.PSKT = 0; self.PWD = 0; self.PWDT = 0; self.FE = 0
-        self.PFD = 0; self.BA = 0
+        self.PFD = 0; self.BA = 0; self.BL = 0; self.CZ = 0
         
         # Future Variables for Store
         #self.HX = 1 # VARIABLE STUB
@@ -38,7 +38,7 @@ def title():
     print('\n' * 2); waitToContinue("continue")
     clrSc()
 
-def scenario():
+def scenario(varStore):
     """
     Variables In: JL
     Variables Out: None
@@ -66,7 +66,7 @@ def scenario():
         "to get some food in this way."))
     print("\n"); waitToContinue("continue")
 
-def getInitSupplies():
+def getInitSupplies(varStore):
     """
     Variables In: JL
     Variables Out: A, A1, A2, B, BA, BL, JL, L
@@ -78,14 +78,23 @@ def getInitSupplies():
         "get the supplies you need. Several traders offer you camels at prices between " + 
         str(varStore.A1) + " and " + str(varStore.A2) + " jewels each."))
     varStore.A = getIntAns("How much do you want to pay for a camel? ")
-    checkAnswerRange()
+    checkAnswerRange(varStore)
     varStore.BA = varStore.A
     print("\n");print(wrapText("You will need at least 7 camels, but not more than 12."))
     varStore.A1 = 7; varStore.A2 = 12
     varStore.A = getIntAns("How many camels do you want to buy? ")
-    checkAnswerRange()
+    checkAnswerRange(varStore)
     varStore.B = varStore.A
     varStore.JL = varStore.JL - varStore.BA * varStore.B
+    varStore.A2 = 3 * varStore.B - 6
+    #Food & Cost, amount of oil camels can carry
+    print(wrapText(" One large sack of food costs 2 jewels. You will need at least 8 sacks "
+        "to get to Babylon (Baghdad); you can carry a maximum of " + str(varStore.A2) + \
+        " sacks."))
+    varStore.A = getIntAns("How many do you want? ")
+    checkAnswerRange(varStore)
+    varStore.F = varStore.A
+    varStore.JL = varStore.JL - varStore.A * 2
     varStore.A2 = 3 * varStore.B - varStore.A
     #Oil - Amount and Cost
     print("\n");print(wrapText("A skin of oil costs 2 jewels each. You should have at least "
@@ -93,7 +102,7 @@ def getInitSupplies():
         " skins."))
     varStore.A1 = 5
     varStore.A = getIntAns("How many do you want? ")
-    checkAnswerRange()
+    checkAnswerRange(varStore)
     varStore.BL = varStore.B
     varStore.L = varStore.A
     varStore.JL = varStore.JL - 2 * varStore.L
@@ -173,8 +182,106 @@ def sickness(varStore):
             varStore.JL = int(varStore.JL/2)
         printDate(varStore)
         return
+        
+def barterSupplies(varStore):
+    """
+    Variables In: JL, A
+    Variables Out: A1, A2, B, BL, BA, JL
+    """
+    print("You have " + str(varStore.JL) + " jewels.")
+    A_s = getYorN(input("\nDo you want to barter here? "))
     
-def initHuntSkill():
+    if A_s == "Y":
+        RN = int(17 + 8 * random.random())
+        print("Camels cost " + str(RN) + " jewels here.")
+        varStore.A1 = 0; varStore.A2 = int(varStore.JL / RN)
+        varStore.A = getIntAns("How many do you want? ")
+        checkAnswerRange(varStore)
+        #Lower Quality Animals along route
+        varStore.B += varStore.A
+        varStore.BL += varStore.A
+        varStore.BA -= varStore.A
+        varStore.JL = varStore.JL - varStore.A * RN
+        RN = int(2 + 4 * random.random())
+        print("Sacks of food cost " + str(RN) + " jewels.")
+        
+        while True:
+            varStore.A2 = int(varStore.JL / RN)
+            varStore.A = getIntAns("How many do you want? ")
+            checkAnswerRange(varStore)
+            varStore.F += varStore.A
+            if varStore.F + varStore.L > 3 * varStore.BL:
+                print("Camels can't carry that much.")
+                varStore.F -= varStore.A
+            else:
+                break
+        
+        varStore.JL = varStore.JL - varStore.A * RN
+        RN = int(2 + 4 * random.random())
+        print("Skins of oil cost " + str(RN) + " jewels.")
+        
+        while True:
+            varStore.A2 = int(varStore.JL / RN)
+            varStore.A = getIntAns("How many do you want? ")
+            checkAnswerRange(varStore)
+            varStore.L += varStore.A
+            if varStore.F + varStore.L > 3 * varStore.BL:
+                print("Camels can't carry that much.")
+                varStore.L -= varStore.A
+            else:
+                break
+                
+        varStore.JL = varStore.JL - varStore.A * RN
+        RN = int(8 + 8 * random.random())
+        print("A set of clothes costs " + str(RN) + " jewels.")  
+        varStore.A2 = int(varStore.JL / RN)
+        varStore.A = getIntAns("How many do you want? ")
+        checkAnswerRange(varStore)
+        varStore.C += varStore.A
+        varStore.JL = varStore.JL - varStore.A * RN
+        print("You can get a bottle of balm for 2 jewels. ")  
+        varStore.A2 = int(varStore.JL / 2)
+        varStore.A = getIntAns("How many do you want? ")
+        checkAnswerRange(varStore)
+        varStore.JL = varStore.JL - 2 * varStore.A
+        varStore.M += varStore.A
+        varStore.A2 = varStore.JL
+        RN = int(6 + 6 * random.random())
+        print("You can get " + str(RN) + " arrows for 1 jewel.")  
+        varStore.A = getIntAns("How many jewels do you want to spend on arrows? ")
+        checkAnswerRange(varStore)
+        varStore.JL -= varStore.A
+        varStore.W = varStore.W + RN * varStore.A
+        
+        if varStore.C > 1:
+            varStore.CZ = 0            
+    
+    print("\nHere is what you now have:")
+    printInv(varStore)
+    return
+    
+def noClothes(varStore):
+    print(); print(wrapText("You were warned about getting more modest clothes. "
+        "Furthermore, your sandals are in shreds.")); print()
+    if varStore.CZ == 1:
+        text = "Word has been received about your disreputable appearance. The people " \
+        "are not willing to deal with you and they stone you. You are badly wounded and " \
+        "vow to get new clothes as soon as possible."
+        clothesDict = {"PWD": 1.5, "CZ": 1}
+    else:
+        text = "The Tartars chase you from town and "
+        if random.random() > 0.2:
+            text = text + "warn you not to return."
+            clothesDict = {"CZ": 1}
+        else:
+            text = text + "stone you. You are badly wounded and vow to get new clothes " \
+                "as soon as possible."
+            clothesDict = {"PWD": 1.5, "CZ": 1}
+    print(wrapText(text))
+    dictToObjectStore(varStore, clothesDict)
+
+    
+def initHuntSkill(varStore):
     """
     Variables In: None
     Variables Out: HX
@@ -318,7 +425,7 @@ def shootCrossbow():
         getSec = getSec + 86401
     varStore.SR = getSec - varStore.HX #shooting response
 
-def checkAnswerRange():
+def checkAnswerRange(varStore):
     """
     Variables In: A, A1, A2
     Variables Out: A
@@ -336,9 +443,9 @@ def checkAnswerRange():
 def main():
     randomize()
     title()
-    scenario()
-    getInitSupplies()
-    initHuntSkill()
+    scenario(varStore)
+    getInitSupplies(varStore)
+    initHuntSkill(varStore)
     
     while True:
         varStore.J+=1; printDate(varStore)
