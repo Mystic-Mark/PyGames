@@ -280,6 +280,75 @@ def noClothes(varStore):
     print(wrapText(text))
     dictToObjectStore(varStore, clothesDict)
 
+def eatFood(varStore):
+    def eatHowMuch():
+        text = " (1) Reasonably well (can walk further; Less chance of sickness)"
+        print("On the next stage of your journey, how do you want to eat :")
+        while True:
+            print(text)
+            A = getIntAns(" (2) Adequately, or (3) Poorly? ")
+            if A  > 0 and A < 4:
+                return A
+            else:
+                text = "That's not a choice. Now then... \n (1) Eat Well,"
+
+    if varStore.F < 3:
+        outOfFood(varStore)
+    while True:
+        A  =  eatHowMuch()
+        varStore.FE = 6 - A
+        if varStore.FE <= varStore.F:
+            varStore.FR = int(0.5 + 10 * (varStore.F - varStore.FE)) / 10
+            if varStore.FR > 3:
+                break
+            if varStore.FR == 1:
+                X_s = "."
+            else:
+                X_s = "s."
+            print("Your food reserve will then be just " + str(varStore.FR) + " sack" + X_s)
+            if A == 3:
+                break
+            A_s = getYorN(input("Do you want to change your mind about how much you will "\
+                "eat? "))
+            if A_s == "N":
+                break
+        else:
+            print("You don't have enough food to eat that well. Try again.")
+    varStore.F -= varStore.FE
+    varStore.D = varStore.D - (A - 1) * 50
+    varStore.FQ = varStore.FP + varStore.FE
+    varStore.FP = varStore.FE
+
+    
+def outOfFood(varStore):
+    print("You don't have enough food to go on.")
+    if varStore.JL > 14:
+        RN = int(5 + 4 * random.random())
+        varStore.A1 = 1; varStore.A2 = int(varStore.JL / RN)
+        print("DEBUG: A1, A2 = " + str(varStore.A1) + " " + str(varStore.A2))
+        print(wrapText("You should have bought food at the market. Now it will cost you " \
+            + str(RN) + " jewels per sack."))
+        varStore.A = getIntAns("How many sacks do you want? ")
+        checkAnswerRange(varStore)
+        varStore.F += varStore.A
+        varStore.JL = varStore.JL - varStore.A * RN
+        if varStore.F >= 3:
+            return
+        print(wrapText("You still don't have enough food and there is nothing to hunt."))
+    if varStore.B > 0:
+        A_s = getYorN(input("\nDo you want to eat a camel? "))
+        if A_s == "N":
+            endGamePt1(varStore)
+        else:
+            varStore.B -= 1
+            RN = int(3 + 2 * random.random())
+            varStore.F += RN
+        text = "You manage to get about " + str(RN) + " sacks of food out of it."
+        print(wrapText(text))
+        return
+    print("You don't even have a camel left to eat.")
+    endGamePt1(varStore)
+
     
 def initHuntSkill(varStore):
     """
@@ -451,7 +520,7 @@ def main():
         varStore.J+=1; printDate(varStore)
         varStore.DT+=varStore.D
         
-        #Reached end of trip
+        # Reached end of trip
         if varStore.DT > 6000:
             endTrip(varStore)
         
@@ -459,12 +528,28 @@ def main():
         print("You have traveled " + str(varStore.DT) + " miles.")
         print("Here is what you now have: "); printInv(varStore)
         
-        #Debug
-        #What about negative jewels????
+        # Debug
+        # What about negative jewels????
         print("\n"); waitToContinue("continue")
+        # -continue debug
         
         chkStock(varStore)
         sickness(varStore)
+        
+        # Camel recover yet?
+        if varStore.BSK == varStore.J:
+            varStore.BSK = 99; varStore.BL = varStore.B; varStore.BA += 1
+        
+        # Barter for supplies
+        if varStore.J > 1 and varStore.JL > 1:
+            barterSupplies(varStore)
+        
+        # no clothes?
+        if varStore.C == 0:
+            noClothes(varStore)
+            
+        # eating routine
+        eatFood(varStore)
         
         endTrip(varStore)
         tryAgain()
