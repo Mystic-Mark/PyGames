@@ -60,6 +60,10 @@ def getIntAns(question):
 def dictToObjectStore(object, dictList):
     for key, value in dictList.items():
         setattr(object, key, value)
+        
+def onCase(onCaseList, indexNum):
+    func = onCaseList.get(indexNum, "notInList")
+    return func
        
 def end():
     exit()

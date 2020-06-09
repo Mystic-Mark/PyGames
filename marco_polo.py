@@ -11,7 +11,8 @@ class varStore:
         self.FA_s = ["wild boar","big stag","black bear"] #Hunting animals
         self.J = 0; self.DT = 0; self.D = 0; self.F = 0; self.L = 0; self.B = 0
         self.PSK = 0; self.PSKT = 0; self.PWD = 0; self.PWDT = 0; self.FE = 0
-        self.PFD = 0; self.BA = 0; self.BL = 0; self.CZ = 0
+        self.PFD = 0; self.BA = 0; self.BL = 0; self.CZ = 0; self.HX = 1
+        self.DZ = -1; self.FQ = 0; self.SR = 0
         
         # Future Variables for Store
         #self.HX = 1 # VARIABLE STUB
@@ -318,14 +319,12 @@ def eatFood(varStore):
     varStore.D = varStore.D - (A - 1) * 50
     varStore.FQ = varStore.FP + varStore.FE
     varStore.FP = varStore.FE
-
     
 def outOfFood(varStore):
     print("You don't have enough food to go on.")
     if varStore.JL > 14:
         RN = int(5 + 4 * random.random())
         varStore.A1 = 1; varStore.A2 = int(varStore.JL / RN)
-        print("DEBUG: A1, A2 = " + str(varStore.A1) + " " + str(varStore.A2))
         print(wrapText("You should have bought food at the market. Now it will cost you " \
             + str(RN) + " jewels per sack."))
         varStore.A = getIntAns("How many sacks do you want? ")
@@ -348,7 +347,335 @@ def outOfFood(varStore):
         return
     print("You don't even have a camel left to eat.")
     endGamePt1(varStore)
+    
+def desertSections(varStore):
+    """
+    Variables In: DT, L
+    Variables Out: DZ, L, PSK, D, M
+    """
+    varStore.DZ = 0
+    # No deserts at far ends
+    if varStore.DT < 2100 or varStore.DT > 5900:
+        return
+    # Tigris River Valley
+    if varStore.DT > 2600 and varStore.DT < 4100:
+        return
+    # No desert in the middle
+    if varStore.DT < 4100:
+        X_s = "Dasht-e-Kavir (Persian)"
+    elif varStore.DT > 5399:
+        X_s = "Gobi (Cathay)"
+    else:
+        X_s = "Taklimakan (Lop)"
+    print(wrapText("You are in the " + X_s + " desert."))
+    
+    if varStore.L < 3:
+        print("You ran out of oil for cooking.")
+        if varStore.L > 1 and random.random() > 0.5:
+            varStore.L = 0
+        else:
+            print(wrapText("You get horribly sick from eating raw and undercooked food."))
+            varStore.L = 0
+            varStore.PSK = 1
+            varStore.D -= 80
+            varStore.M -= 1
+    else:
+        varStore.L -= 3
+        print("Use 3 skins of oil for cooking.")
 
+    onCaseList = {
+            1: specialCamelSick,
+            2: scenario2310,
+            3: scenario2420,
+            4: scenario2450,
+            5: scenario2480,
+            6: scenario2510
+        }
+    
+    indexNum = random.randint(1, 7)
+    
+    response = onCase(onCaseList, indexNum)
+    if response == "notInList":
+        print("You get through this stretch of desert without mishap!")
+    else:
+        response(varStore)
+    
+    varStore.DZ = 1
+    chkForZero(varStore)
+    
+def specialEvents(varStore):
+    RN = int(sum(varStore.EPT) * random.random())
+    i = 1
+    while RN > varStore.EP[i-1]:
+        i += 1
+    
+    onCaseList = {
+            1: specialCamelInjury,
+            2: specialCamelSick,
+            3: scenario2310,
+            4: scenario2340,
+            5: scenario2360,
+            6: scenario2380,
+            7: scenario2400,
+            8: scenario2420,
+            9: scenario2450,
+            10: scenario2480,
+            11: scenario2540,
+            12: scenario2570,
+            13: scenario2600,
+            14: scenario2660
+        }
+
+    indexNum = i
+    response = onCase(onCaseList, indexNum)
+    response(varStore)
+
+def specialCamelSick(varStore):
+    print(wrapText("One of your camels is very sick and can't carry a full load."))
+    while True:
+        A = getIntAns("Want to (1) Keep it with you, (2) Slaughter it, or (3) Sell it: ")
+        if A == 1:
+            varStore.BSK = varStore.J + 2
+            checkCarryCapacity(varStore)
+            break
+        elif A == 2:
+            specialCamelKill(varStore)
+            break
+        elif A == 3:
+            specialCamelSell(varStore)
+            break
+        else:
+            print("That is not a choice. Again, please.")
+
+def specialCamelInjury(varStore):
+    text = "A camel injures its leg. Do you want to (1) Nurse it along or"
+    while True:
+        print(wrapText(text))
+        A = getIntAns("(2) Abandon it, or (3) Sell it: ")
+        if A == 1:
+            varStore.BSK = varStore.J + 2
+            checkCarryCapacity(varStore)
+            break
+        elif A == 2:
+            specialCamelKill(varStore)
+            break
+        elif A == 3:
+            specialCamelSell(varStore)
+            break
+        else:
+            text = "That is not a choice. Answer (1) Nurse it along or"
+    
+def specialCamelKill(varStore):
+    varStore.B -= 1
+    checkCarryCapacity(varStore)
+    varStore.FC = 3 * varStore.BL - varStore.F - varStore.L
+    if varStore.FC <= 0:
+        return
+    else:
+        print("You kill the camel for food.")
+    if varStore.FC > 2:
+        varStore.FC = 3
+    varStore.F += varStore.FC
+    if varStore.FC == 1:
+        X_s = ""
+    else:
+        X_s = "s"
+    print(wrapText("You get the equivalent of " + str(varStore.FC) + " sack" + X_s + " of "
+        "food."))
+
+def specialCamelSell(varStore):
+    varStore.B -= 1
+    print(wrapText("It is a poor beast and you can get only 10 jewels for it."))
+    varStore.JL += 10
+    checkCarryCapacity(varStore)
+    
+def checkCarryCapacity(varStore):
+    varStore.BL = varStore.B
+    if varStore.BSK <= varStore.J:
+        # if sick camel reduce load, speed
+        varStore.BL = varStore.B - 0.6
+        varStore.BA -= 1
+    if varStore.F + varStore.L <= 3 * varStore.BL:
+        return
+    print("You have too large a load for your camels. ")
+    varStore.FC = int(varStore.F + varStore.L - 3 * varStore.BL + 0.9)
+    if varStore.FC == 1:
+        X_s = ""
+    else:
+        X_s = "s"
+    print("You'll have to sell " + str(varStore.FC) + " sack" + X_s + " of food or skin"\
+        + X_s + " of oil.")
+    # How much to sell of food and oil
+    FS = int(varStore.FC / 2)
+    LS = varStore.FC - FS
+    while LS > varStore.L:
+        LS -= 1
+        FS += 1
+    while FS > varStore.F:
+        FS -= 1
+        LS += 1
+    # Decrease food and oil, add jewels
+    varStore.F -= FS
+    varStore.L -= LS
+    varStore.JL = varStore.JL + FS + LS
+    text = "You sell " + str(FS) + " of food, " + str(LS) + " of oil for which you"\
+        " get only " + str(FS + LS) + " jewel" + X_s + "."
+    print(wrapText(text))
+    
+def scenario2310(varStore):
+    print(wrapText("Long stretch with bad water. Costs time to find clean wells."))
+    varStore.D -= 50
+    
+def scenario2340(varStore):
+    print(wrapText("You get lost trying to find an easier route."))
+    varStore.D -= 100
+
+def scenario2360(varStore):
+    print(wrapText("Heavy rains completely wash away the route."))
+    varStore.D -= 90
+    
+def scenario2380(varStore):
+    print(wrapText("Some of your food rots in the humid weather."))
+    varStore.F -= 1
+    
+def scenario2400(varStore):
+    print(wrapText("Marauding animals got into your food supply."))
+    varStore.F -= 1
+
+def scenario2420(varStore):
+    print(wrapText("A fire flares up and destroys some of your food and clothes."))
+    varStore.F -= 0.4; varStore.C -= 1
+    chkForZero(varStore)
+    if varStore.L < 1:
+        return
+    else:
+        varStore.L -= 0.5
+    
+def scenario2450(varStore):
+    print(wrapText("Two camels wonder off. You finally find them after spending "
+        "several days searching for them."))
+    varStore.D -= 20
+    
+def scenario2480(varStore):
+    print(wrapText("You get a nasty burn from an oil fire."))
+    varStore.PWD = 0.5
+    useBalm(varStore)
+    
+def scenario2510(varStore):
+    print(wrapText("High winds, sand storms, and ferocious heat slow you down."))
+    varStore.D -= 70
+    
+def scenario2540(varStore):
+    print(wrapText("A gash in your leg looks infected. It hurts like the blazes."))
+    useBalm(varStore)
+    varStore.D -= 50
+    varStore.PWD = 0.7
+    
+def scenario2570(varStore):
+    print(wrapText("Jagged rocks tear your sandals and clothing. You'll have to get "
+        "replacements as soon as you can."))
+    varStore.C -= 1
+    varStore.D -= 30
+    
+def scenario2600(varStore):
+    RN = int(random.random() * varStore.FQ)
+    if RN < 2:
+        print(wrapText("All of you have horrible stomach cramps and intestinal disorders "
+            "and are laid up for over a month."))
+        varStore.D -= 275
+    elif RN < 3.5:
+        print(wrapText("You're running a high fever and your muscles feel like jelly. "
+            "Your party slows down for you."))
+        varStore.PSK = 0.7
+        varStore.D -= 125
+    else:
+        return
+    
+def scenario2660(varStore):
+    print(wrapText("Blood-thirsty bandits are attacking your small caravan! You grab "
+        "your crossbow..."))
+    shootCrossbow(varStore)
+    if varStore.W > 5:
+        if varStore.SR <= 1:
+            print(wrapText("Wow! Sensational shooting. You drove them off with no "
+                "losses."))
+            varStore.W -= 4
+            return
+        elif varStore.SR <= 3:
+            print(wrapText("With practice you could shoot the crossbow, but most of "
+                "your shots missed. An iron mace got you in the chest. They took some "
+                "jewels."))
+            varStore.PWD = 1
+            varStore.JL -= 5
+            useBalm(varStore)
+            varStore.W = varStore.W - 3 - 2 * varStore.SR
+            chkForZero(varStore)
+            return
+        else:
+            print(wrapText("Better stick to trading; your aim is terrible."))
+    else:
+        print(wrapText("You try to drive them off, but you run out of arrows. They grab "
+            "some jewels and food."))
+        varStore.F -= 1
+        chkForZero(varStore)
+    # 80% chance of surviving attack
+    if random.random() <= 0.8:
+        print(wrapText("You caught a knife in the shoulder. That's going to take quite "
+            "a while to heal."))
+        useBalm(varStore)
+        varStore.PWD = 1.5
+        varStore.JL -= 10
+        varStore.W = varStore.W - 4 - 2 * varStore.SR
+        chkForZero(varStore)
+        return
+    else:
+        print(wrapText("They are savage, evil barbarians - they kill you and take your "
+            "remaining camels and jewels."))
+        varStore.JL = 0; varStore.B = 0
+        varStore.W -= 4; chkForZero(varStore)
+        endGamePt2(varStore)
+    
+def useBalm(varStore):
+    RN = int(1 + 2 * random.random())
+    if RN > 1:
+        X_s = "s"
+    else:
+        X_s = ""
+    if random.random() > 0.5:
+        XA_s = "balm"
+    else:
+        XA_s = "unguent"
+    varStore.M = varStore.M - RN
+    
+    if varStore.M < 0:
+        varStore.M = 0
+        print(wrapText("You need more " + XA_s + " to treat your wound."))
+        if varStore.JL > 7:
+            print(wrapText("Fortunately, you find some nomads who offer to sell you 2 "
+                "bottles of " + XA_s + " for the outrageous price of 4 jewels each."))
+            A = getYorN(input("\nDo you want to buy it? "))
+            if A == "Y":
+                print(wrapText("It works well and you're soon feeling better."))
+                varStore.M = 0
+                varStore.JL -= 8
+                return
+        else:
+            print(wrapText("But, alas, you don't have enough jewels to buy any."))
+        text = "Your wound is badly infected, "
+        
+        if random.random() < 0.8:
+            print(wrapText(text + "but you push on for the next village."))
+            varStore.PWD = 3
+            return
+        else:
+            print(wrapText(text + "but you keep going anyway."))
+            print();print(wrapText("Unfortunately, the strain is too much for you and, "
+                "after weeks of agony, you succumb to your wounds and die in the "
+                "wilderness."))
+            endGamePt2(varStore)
+    else:
+        print(wrapText("You use " + str(RN) + " bottle" + X_s + " of " + XA_s + 
+            " treating your wound."))
     
 def initHuntSkill(varStore):
     """
@@ -369,6 +696,26 @@ def initHuntSkill(varStore):
            print("Please enter 1, 2, 3 or 4")
     print("\n"); waitToContinue("Press enter to begin your trek!")
     clrSc()
+
+def huntForFood(varStore):
+    if varStore.W < 15:
+        print("You don't have enough arrows to hunt for food.")
+        return
+    a = int(1 + 3 * random.random())
+    print("There goes a " + varStore.FA_s[a-1] + "... ")
+    varStore.W -= 15; shootCrossbow(varStore)
+    if varStore.SR <= 1:
+        print("With shooting that good, the Khan will want you in his army.")
+        varStore.FA = 3
+    elif varStore.SR <= 3:
+        print("Not bad, you finally brought one down.")
+        varStore.FA = 2
+    else:
+        print("Were you too excited? All your shots went wild.")
+        return
+    print("Your hunting yields " + str(varStore.FA) + " sacks of food.")
+    varStore.F += varStore.FA
+
     
 def chkForZero(varStore):
     #Can't have negative jewels
@@ -472,7 +819,7 @@ def printDate(varStore):
     YR = 1271 + int(varStore.J/6)
     print("\nDate: " + varStore.MO_s[MO-1] + " " + str(YR))
     
-def shootCrossbow():
+def shootCrossbow(varStore):
     """
     Variables In: SW_s, HX
     Variables Out: SR
@@ -551,8 +898,22 @@ def main():
         # eating routine
         eatFood(varStore)
         
-        endTrip(varStore)
-        tryAgain()
+        # 18% chance to hunt for food
+        if varStore.DZ == 0 and random.random() < 0.18:
+            huntForFood(varStore)
+        
+        # Desert Sections
+        print()
+        desertSections(varStore)
+        
+        # Event Happens
+        if varStore.DZ == 0:
+            specialEvents(varStore)
+        
+        chkForZero(varStore)
+        
+        #endTrip(varStore)
+        #tryAgain()
 
 if __name__ == '__main__':
     varStore = varStore()
