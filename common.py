@@ -3,6 +3,7 @@ import random
 import textwrap
 from datetime import datetime, timedelta
 import time
+import sys
 
 def randomize():
     random.seed(datetime.now())
@@ -64,6 +65,13 @@ def dictToObjectStore(object, dictList):
 def onCase(onCaseList, indexNum):
     func = onCaseList.get(indexNum, "notInList")
     return func
+    
+def checkForDebugMode():
+    opts = [opt for opt in sys.argv[1:] if opt.startswith("-")]
+    if "-d" in opts:
+        return True
+    else:
+        return False
        
 def end():
     exit()

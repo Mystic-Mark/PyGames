@@ -14,11 +14,6 @@ class varStore:
         self.PFD = 0; self.BA = 0; self.BL = 0; self.CZ = 0; self.HX = 1
         self.DZ = -1; self.FQ = 0; self.SR = 0
         
-        # Future Variables for Store
-        #self.HX = 1 # VARIABLE STUB
-        #self.J = 1 # VARIABLE STUB
-        #self.A, self.A1, self.A2 = 2, 1, 3 # VARIABLE STUB
-        
         self.setupEP()
     
     def reset(self):
@@ -798,6 +793,7 @@ def endTrip(varStore):
         "result, keeps the three of you as his personal envoys for the next 21 years. Well "
         "done!"))
     print()
+    tryAgain()
 
 def tryAgain():
     A = getYorN(input("\nWould you like to try again? "))
@@ -855,6 +851,38 @@ def checkAnswerRange(varStore):
             X = "many"
         print("That is too " + X + ". ", end="")
         varStore.A = getIntAns("Your answer please? ")
+        
+def debugInv(varStore):
+    #Ask to make adjustments
+    A_s = getYorN(input("DEBUG: Do you want to make adjustments? "))
+    if A_s == "Y":
+        A_s = getYorN(input("DEBUG: Set all values to 0? "))
+        if A_s == "Y":
+            varStore.JL = 0; varStore.B = 0; varStore.F = 0
+            varStore.L = 0; varStore.C = 0; varStore.M = 0
+            varStore.W = 0
+            print(); return
+        A_s = getYorN(input("DEBUG: Set all values to max? "))
+        if A_s == "Y":
+            varStore.JL = 300; varStore.B = 12; varStore.F = 26
+            varStore.L = 10; varStore.C = 2; varStore.M = 5
+            varStore.W = 30
+            print(); return
+        A_s = getYorN(input("DEBUG: Set individual values? "))
+        if A_s == "Y":
+            varStore.JL = getIntAns("DEBUG: Jewels? ")
+            varStore.B = getIntAns("DEBUG: Camels? ")
+            varStore.F = getIntAns("DEBUG: Sacks of Food? ")
+            varStore.L = getIntAns("DEBUG: Skins of Oil? ")
+            varStore.C = getIntAns("DEBUG: Sets of Clothing? ")
+            varStore.M = getIntAns("DEBUG: First Aid Kits? ")
+            varStore.W = getIntAns("DEBUG: Crossbow Arrows? ")
+            print(); return
+        A_s = getYorN(input("DEBUG: Change Misc Values? "))
+        if A_s == "Y":
+            varStore.DT = getIntAns("DEBUG: Distance Traveled? ")
+            print(); return
+    print()
 
 def main():
     randomize()
@@ -875,9 +903,12 @@ def main():
         print("You have traveled " + str(varStore.DT) + " miles.")
         print("Here is what you now have: "); printInv(varStore)
         
-        # Debug
+        # Call My Debug Routine
+        if varStore.DebugMode:
+            debugInv(varStore)
+        
         # What about negative jewels????
-        print("\n"); waitToContinue("continue")
+        #print("\n"); waitToContinue("continue")
         # -continue debug
         
         chkStock(varStore)
@@ -917,4 +948,5 @@ def main():
 
 if __name__ == '__main__':
     varStore = varStore()
+    varStore.DebugMode = checkForDebugMode()
     main()
