@@ -54,13 +54,14 @@ def scenario(varStore):
         "able to use wood to build fires. However, in the Persian, Lop, and Gobi deserts "
         "you will need oil."))
     print("\n"); waitToContinue("continue")
+    clrSc()
     print(wrapText(" From Venice you have also packed clothing, weapons (crossbows), and "
         "medicines (balms and unguents); however, your provisions will be depleted as you "
         "go along and you must replenish them. The selection and price of supplies is quite "
         "different in various regions, so you must barter wisely. As a merchant, you are "
         "not skilled in fishing or hunting, although occasionally you might be able to try "
         "to get some food in this way."))
-    print("\n"); waitToContinue("continue")
+    print("\n"); #waitToContinue("continue")
 
 def getInitSupplies(varStore):
     """
@@ -69,39 +70,73 @@ def getInitSupplies(varStore):
     """
     #Camels - number, cost, amount they can carry
     varStore.A1 = 17; varStore.A2 = 24
+    
     print(wrapText(" After three months at sea, you have arrived at the seaport "
         "of Laiassus, Armenia. There are many merchants in the port city and you can easily "
         "get the supplies you need. Several traders offer you camels at prices between " + 
         str(varStore.A1) + " and " + str(varStore.A2) + " jewels each."))
+        
     varStore.A = getIntAns("How much do you want to pay for a camel? ")
     checkAnswerRange(varStore)
     varStore.BA = varStore.A
-    print("\n");print(wrapText("You will need at least 7 camels, but not more than 12."))
+    print();print(wrapText("You will need at least 7 camels, but not more than 12."))
     varStore.A1 = 7; varStore.A2 = 12
     varStore.A = getIntAns("How many camels do you want to buy? ")
     checkAnswerRange(varStore)
     varStore.B = varStore.A
     varStore.JL = varStore.JL - varStore.BA * varStore.B
+    
+    #Food & Cost
+    varStore.A1 = 8
     varStore.A2 = 3 * varStore.B - 6
-    #Food & Cost, amount of oil camels can carry
-    print(wrapText(" One large sack of food costs 2 jewels. You will need at least 8 sacks "
-        "to get to Babylon (Baghdad); you can carry a maximum of " + str(varStore.A2) + \
-        " sacks."))
-    varStore.A = getIntAns("How many do you want? ")
-    checkAnswerRange(varStore)
-    varStore.F = varStore.A
-    varStore.JL = varStore.JL - varStore.A * 2
+    print("\nYou currently have " + str(varStore.JL) + " jewels.")
+    if varStore.JL >= varStore.A1*2:
+        if varStore.A2 > int(varStore.JL/2):
+            text = "You could carry up to " + str(varStore.A2) + " sacks, but can only " \
+                "afford " + str(int(varStore.JL/2)) + "."
+            varStore.A2 = int(varStore.JL/2)
+        else:
+            text = "You can carry a maximum of " + str(varStore.A2) + " sacks."     
+      
+        print(wrapText("One large sack of food costs 2 jewels. You will need at least 8 "
+            "sacks to get to Babylon (Baghdad). " + text))
+        varStore.A = getIntAns("How many do you want? ")
+        checkAnswerRange(varStore)
+        varStore.F = varStore.A
+        varStore.JL = varStore.JL - varStore.A * 2    
+    else:
+        print(wrapText("You don't have enough jewels to buy the minimum number of food "
+            "sacks. You trade a camel and now have 8 food sacks."))
+        varStore.B -= 1
+        varStore.JL = varStore.JL + 17 - varStore.A1 * 2
+        varStore.F = 8
+        
+    
+    #Oil - Amount and Cost, amount of oil camels can carry
+    varStore.A1 = 6
     varStore.A2 = 3 * varStore.B - varStore.A
-    #Oil - Amount and Cost
-    print("\n");print(wrapText("A skin of oil costs 2 jewels each. You should have at least "
-        "6 full skins for cooking in the desert. Your camels can carry " + str(varStore.A2) + 
-        " skins."))
-    varStore.A1 = 5
-    varStore.A = getIntAns("How many do you want? ")
-    checkAnswerRange(varStore)
-    varStore.BL = varStore.B
-    varStore.L = varStore.A
-    varStore.JL = varStore.JL - 2 * varStore.L
+    print("\nYou currently have " + str(varStore.JL) + " jewels.")
+    if varStore.JL >= varStore.A1*2:
+        if varStore.A2 > int(varStore.JL/2):
+            text = "Your camels could carry up to " + str(varStore.A2) + " skins, but you can only afford " + str(int(varStore.JL/2)) + "."
+            varStore.A2 = int(varStore.JL/2)
+        else:
+            text = "Your camels can carry a maximum of " + str(varStore.A2) + " skins."
+            
+        print(wrapText("A skin of oil costs 2 jewels each. You should have at least 6 full skins for cooking in the desert. " + text))
+        varStore.A = getIntAns("How many do you want? ")
+        checkAnswerRange(varStore)
+        varStore.BL = varStore.B
+        varStore.L = varStore.A
+        varStore.JL = varStore.JL - 2 * varStore.L
+    else:
+        print(wrapText("You don't have enough jewels to buy the minimum number of oil "
+            "skins. You trade a camel and now have 8 oil skins."))
+        varStore.B -= 1
+        varStore.BL = varStore.B
+        varStore.JL = varStore.JL + 17 - varStore.A1 * 2
+        varStore.L = 8 
+    
     
 def chkStock(varStore):
     """
@@ -156,7 +191,8 @@ def sickness(varStore):
     if random.random() > 0.7:
         return
         
-    print(wrapText("As a result of sickness, injuries, and poor eating, you must stop and regain your health. You trade a few jewels to stay in a hut."))
+    print(wrapText("As a result of sickness, injuries, and poor eating, you must stop and "
+        "regain your health. You trade a few jewels to stay in a hut."))
     RN = int(1+3.2*(random.random()))
 
     if RN > 3:
@@ -184,7 +220,10 @@ def barterSupplies(varStore):
     Variables In: JL, A
     Variables Out: A1, A2, B, BL, BA, JL
     """
+    checkCarryCapacity(varStore)
+    
     print("You have " + str(varStore.JL) + " jewels.")
+
     A_s = getYorN(input("\nDo you want to barter here? "))
     
     if A_s == "Y":
@@ -199,15 +238,16 @@ def barterSupplies(varStore):
         varStore.BA -= varStore.A
         varStore.JL = varStore.JL - varStore.A * RN
         RN = int(2 + 4 * random.random())
+        
         print("Sacks of food cost " + str(RN) + " jewels.")
         
         while True:
             varStore.A2 = int(varStore.JL / RN)
-            varStore.A = getIntAns("How many do you want? ")
+            varStore.A = getIntAns("How many do you want? Max you can afford is " + str(varStore.A2) + " sacks: ")
             checkAnswerRange(varStore)
             varStore.F += varStore.A
             if varStore.F + varStore.L > 3 * varStore.BL:
-                print("Camels can't carry that much.")
+                print("Camels can't carry that much. Enter a value from " + str(varStore.A1) + " to " + str(int(varStore.BL * 3 - (varStore.F - varStore.A)  - varStore.L)) + ".")
                 varStore.F -= varStore.A
             else:
                 break
@@ -218,11 +258,11 @@ def barterSupplies(varStore):
         
         while True:
             varStore.A2 = int(varStore.JL / RN)
-            varStore.A = getIntAns("How many do you want? ")
+            varStore.A = getIntAns("How many do you want? Max you can afford is " + str(varStore.A2) + " skins: ")
             checkAnswerRange(varStore)
             varStore.L += varStore.A
             if varStore.F + varStore.L > 3 * varStore.BL:
-                print("Camels can't carry that much.")
+                print("Camels can't carry that much. Enter a value from " + str(varStore.A1) + " to " + str(int(varStore.BL *3 - varStore.F - (varStore.L - varStore.A))) + ".")
                 varStore.L -= varStore.A
             else:
                 break
@@ -252,9 +292,10 @@ def barterSupplies(varStore):
         if varStore.C > 1:
             varStore.CZ = 0            
     
-    print("\nHere is what you now have:")
-    printInv(varStore)
-    return
+        print("\nHere is what you now have:")
+        printInv(varStore)
+    else:
+        print()
     
 def noClothes(varStore):
     print(); print(wrapText("You were warned about getting more modest clothes. "
@@ -677,7 +718,7 @@ def initHuntSkill(varStore):
     Variables In: None
     Variables Out: HX
     """
-    print("\n"); print(wrapText("Before you begin your journey, please rank your skill "
+    print(); print(wrapText("Before you begin your journey, please rank your skill "
         "with the crossbow on the following scale:"))
     print(" (1) Can hit a charging boar at 300 paces")
     print(" (2) Can hit a deer at 50 paces")
@@ -779,7 +820,7 @@ def endGamePt2(varStore):
 
 def endTrip(varStore):
     chkForZero(varStore)
-    time.sleep(1); clrSc()
+    time.sleep(1)
     for i in range(5):
         print("\n\n\n\n\n"); center("CONGRATULATIONS !")
         time.sleep(0.5); clrSc()
@@ -867,7 +908,19 @@ def debugInv(varStore):
             varStore.JL = 300; varStore.B = 12; varStore.F = 26
             varStore.L = 10; varStore.C = 2; varStore.M = 5
             varStore.W = 30
+            checkCarryCapacity(varStore)
+            print();printInv(varStore)
             print(); return
+            
+        A_s = getYorN(input("DEBUG: Set danger level values? "))
+        if A_s == "Y":
+            varStore.JL = 10; varStore.B = 3; varStore.F = 1
+            varStore.L = 1; varStore.C = 1; varStore.M = 1
+            varStore.W = 5
+            checkCarryCapacity(varStore)
+            print();printInv(varStore)
+            print(); return            
+            
         A_s = getYorN(input("DEBUG: Set individual values? "))
         if A_s == "Y":
             varStore.JL = getIntAns("DEBUG: Jewels? ")
@@ -908,8 +961,7 @@ def main():
             debugInv(varStore)
         
         # What about negative jewels????
-        #print("\n"); waitToContinue("continue")
-        # -continue debug
+        # Need to fix
         
         chkStock(varStore)
         sickness(varStore)
@@ -942,9 +994,6 @@ def main():
             specialEvents(varStore)
         
         chkForZero(varStore)
-        
-        #endTrip(varStore)
-        #tryAgain()
 
 if __name__ == '__main__':
     varStore = varStore()
