@@ -61,7 +61,7 @@ def scenario(varStore):
         "different in various regions, so you must barter wisely. As a merchant, you are "
         "not skilled in fishing or hunting, although occasionally you might be able to try "
         "to get some food in this way."))
-    print("\n"); #waitToContinue("continue")
+    print("\n")
 
 def getInitSupplies(varStore):
     """
@@ -118,12 +118,14 @@ def getInitSupplies(varStore):
     print("\nYou currently have " + str(varStore.JL) + " jewels.")
     if varStore.JL >= varStore.A1*2:
         if varStore.A2 > int(varStore.JL/2):
-            text = "Your camels could carry up to " + str(varStore.A2) + " skins, but you can only afford " + str(int(varStore.JL/2)) + "."
+            text = "Your camels could carry up to " + str(varStore.A2) + " skins, but " \
+                "you can only afford " + str(int(varStore.JL/2)) + "."
             varStore.A2 = int(varStore.JL/2)
         else:
             text = "Your camels can carry a maximum of " + str(varStore.A2) + " skins."
             
-        print(wrapText("A skin of oil costs 2 jewels each. You should have at least 6 full skins for cooking in the desert. " + text))
+        print(wrapText("A skin of oil costs 2 jewels each. You should have at least 6 "
+            "full skins for cooking in the desert. " + text))
         varStore.A = getIntAns("How many do you want? ")
         checkAnswerRange(varStore)
         varStore.BL = varStore.B
@@ -198,11 +200,14 @@ def sickness(varStore):
     if RN > 3:
         #6% chance of dying
         time.sleep(2)
-        print(wrapText("\nYou stay for " + str(RN) + " months but grow steadily weaker and finally pass away."))
+        print()
+        print(wrapText("You stay for " + str(RN) + " months but grow steadily weaker and "
+            "finally pass away."))
         varStore.J += RN
         endGamePt2(varStore)
     else:
-        print(wrapText("\nYou grow steadily stronger, but it is " + str(RN*2) + " months until you are again fit to travel."))
+        print(wrapText("\nYou grow steadily stronger, but it is " + str(RN*2) + " months "
+            "until you are again fit to travel."))
         varStore.PSKT = 0; varStore.PWDT = 0; varStore.PFD = 0
         varStore.J += RN; varStore.M = int(varStore.M/2); varStore.F = varStore.F / 2
         if varStore.F < 3:
@@ -239,43 +244,49 @@ def barterSupplies(varStore):
         varStore.JL = varStore.JL - varStore.A * RN
         RN = int(2 + 4 * random.random())
         
-        print("Sacks of food cost " + str(RN) + " jewels.")
+        print(); print("Sacks of food cost " + str(RN) + " jewels.")
         
         while True:
             varStore.A2 = int(varStore.JL / RN)
-            varStore.A = getIntAns("How many do you want? Max you can afford is " + str(varStore.A2) + " sacks: ")
+            varStore.A = getIntAns("How many do you want? Max you can afford is " + \
+                str(varStore.A2) + " sacks: ")
             checkAnswerRange(varStore)
             varStore.F += varStore.A
             if varStore.F + varStore.L > 3 * varStore.BL:
-                print("Camels can't carry that much. Enter a value from " + str(varStore.A1) + " to " + str(int(varStore.BL * 3 - (varStore.F - varStore.A)  - varStore.L)) + ".")
+                print("Camels can't carry that much. Enter a value from " + \
+                    str(varStore.A1) + " to " +  str(int(varStore.BL * 3 - \
+                    (varStore.F - varStore.A)  - varStore.L)) + ".")
                 varStore.F -= varStore.A
             else:
                 break
         
         varStore.JL = varStore.JL - varStore.A * RN
         RN = int(2 + 4 * random.random())
-        print("Skins of oil cost " + str(RN) + " jewels.")
+        print(); print("Skins of oil cost " + str(RN) + " jewels.")
         
         while True:
             varStore.A2 = int(varStore.JL / RN)
-            varStore.A = getIntAns("How many do you want? Max you can afford is " + str(varStore.A2) + " skins: ")
+            varStore.A = getIntAns("How many do you want? Max you can afford is " + \
+                str(varStore.A2) + " skins: ")
             checkAnswerRange(varStore)
             varStore.L += varStore.A
             if varStore.F + varStore.L > 3 * varStore.BL:
-                print("Camels can't carry that much. Enter a value from " + str(varStore.A1) + " to " + str(int(varStore.BL *3 - varStore.F - (varStore.L - varStore.A))) + ".")
+                print("Camels can't carry that much. Enter a value from " + \
+                    str(varStore.A1) + " to " + str(int(varStore.BL *3 - \
+                    varStore.F - (varStore.L - varStore.A))) + ".")
                 varStore.L -= varStore.A
             else:
                 break
                 
         varStore.JL = varStore.JL - varStore.A * RN
         RN = int(8 + 8 * random.random())
-        print("A set of clothes costs " + str(RN) + " jewels.")  
+        print(); print("A set of clothes costs " + str(RN) + " jewels.")  
         varStore.A2 = int(varStore.JL / RN)
         varStore.A = getIntAns("How many do you want? ")
         checkAnswerRange(varStore)
         varStore.C += varStore.A
         varStore.JL = varStore.JL - varStore.A * RN
-        print("You can get a bottle of balm for 2 jewels. ")  
+        print(); print("You can get a bottle of balm for 2 jewels. ")  
         varStore.A2 = int(varStore.JL / 2)
         varStore.A = getIntAns("How many do you want? ")
         checkAnswerRange(varStore)
@@ -283,7 +294,7 @@ def barterSupplies(varStore):
         varStore.M += varStore.A
         varStore.A2 = varStore.JL
         RN = int(6 + 6 * random.random())
-        print("You can get " + str(RN) + " arrows for 1 jewel.")  
+        print(); print("You can get " + str(RN) + " arrows for 1 jewel.")  
         varStore.A = getIntAns("How many jewels do you want to spend on arrows? ")
         checkAnswerRange(varStore)
         varStore.JL -= varStore.A
@@ -735,21 +746,21 @@ def initHuntSkill(varStore):
 
 def huntForFood(varStore):
     if varStore.W < 15:
-        print("You don't have enough arrows to hunt for food.")
+        print("\nYou don't have enough arrows to hunt for food.")
         return
     a = int(1 + 3 * random.random())
     print("There goes a " + varStore.FA_s[a-1] + "... ")
     varStore.W -= 15; shootCrossbow(varStore)
     if varStore.SR <= 1:
-        print("With shooting that good, the Khan will want you in his army.")
+        print("\nWith shooting that good, the Khan will want you in his army.")
         varStore.FA = 3
     elif varStore.SR <= 3:
-        print("Not bad, you finally brought one down.")
+        print("\nNot bad, you finally brought one down.")
         varStore.FA = 2
     else:
-        print("Were you too excited? All your shots went wild.")
+        print("\nWere you too excited? All your shots went wild.")
         return
-    print("Your hunting yields " + str(varStore.FA) + " sacks of food.")
+    print("\nYour hunting yields " + str(varStore.FA) + " sacks of food.")
     varStore.F += varStore.FA
 
     
@@ -787,7 +798,9 @@ def printInv(varStore):
         "{l2[col7]:^8}"
     print(line2Txt.format(l2=line2))
     
-    line3 = {'colspc': '  ', 'col1': varStore.JL, 'col2': varStore.B, 'col3': varStore.F, 'col4': varStore.L, 'col5': varStore.C, 'col6': varStore.M, 'col7': varStore.W}
+    line3 = {'colspc': '  ', 'col1': varStore.JL, 'col2': varStore.B, 'col3': 
+        varStore.F,  'col4': varStore.L, 'col5': varStore.C, 'col6': varStore.M, 'col7':
+        varStore.W}
     line3Txt ="{l3[col1]:^6d}{l3[colspc]}{l3[col2]:^6d}{l3[colspc]}{l3[col3]:^8.1f}"\
         "{l3[colspc]}{l3[col4]:^8.1f}{l3[colspc]}{l3[col5]:^9d}{l3[colspc]}{l3[col6]:^9d}"\
         "{l3[colspc]}{l3[col7]:^8d}"
@@ -959,9 +972,6 @@ def main():
         # Call My Debug Routine
         if varStore.DebugMode:
             debugInv(varStore)
-        
-        # What about negative jewels????
-        # Need to fix
         
         chkStock(varStore)
         sickness(varStore)
